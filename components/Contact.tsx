@@ -1,37 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "@/firebase";
 
 export default function Contact() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setStatus("sending");
+
+    const formData = new FormData(e.currentTarget);
 
     try {
-      await addDoc(collection(db, "contacts"), {
-        name,
-        email,
-        message,
-        createdAt: new Date(),
+      const res = await fetch("https://formspree.io/f/mlgedkvp", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
       });
 
-      setSent(true);
-      setName("");
-      setEmail("");
-      setMessage("");
+      if (res.ok) {
+        setStatus("success");
+        e.currentTarget.reset();
+      } else {
+        setStatus("error");
+      }
     } catch (err) {
-      alert("Something went wrong. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
+      setStatus("error");
     }
   };
 
@@ -39,7 +35,7 @@ export default function Contact() {
     <section id="contact" className="px-8 py-20 bg-black text-white">
       <h2 className="text-4xl font-bold mb-8 text-center">Contact Us</h2>
 
-      {sent ? (
+      {status === "success" ? (
         <div className="text-center text-green-400 text-xl">
           ✅ Thank you for contacting us! <br />
           We’ll get back to you shortly.
@@ -50,23 +46,23 @@ export default function Contact() {
           className="max-w-xl mx-auto flex flex-col gap-4"
         >
           <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="text"
+            name="name"
             placeholder="Your Name"
             required
             className="p-3 rounded bg-gray-900 border border-gray-700"
           />
+
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
             placeholder="Your Email"
             required
             className="p-3 rounded bg-gray-900 border border-gray-700"
           />
+
           <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            name="message"
             placeholder="Your Message"
             required
             rows={4}
@@ -74,11 +70,18 @@ export default function Contact() {
           />
 
           <button
-            disabled={loading}
+            type="submit"
+            disabled={status === "sending"}
             className="mt-4 py-3 rounded bg-white text-black font-semibold disabled:opacity-50"
           >
-            {loading ? "Sending..." : "Send Message"}
+            {status === "sending" ? "Sending..." : "Send Message"}
           </button>
+
+          {status === "error" && (
+            <p className="text-red-400 text-center">
+              ❌ Something went wrong. Please try again.
+            </p>
+          )}
         </form>
       )}
     </section>
