@@ -18,11 +18,10 @@ export default function Contact() {
         <form
           action="https://formspree.io/f/mlgedkvp"
           method="POST"
-          onSubmit={() => setSubmitted(true)}
           className="max-w-xl mx-auto flex flex-col gap-4"
+          onSubmit={() => setSubmitted(true)}
         >
           <input
-            type="text"
             name="name"
             placeholder="Your Name"
             required
@@ -44,10 +43,6 @@ export default function Contact() {
             rows={4}
             className="p-3 rounded bg-gray-900 border border-gray-700"
           />
-
-          {/* Formspree helpers */}
-          <input type="hidden" name="_subject" value="New Contact Message" />
-          <input type="hidden" name="_template" value="table" />
 
           <button
             type="submit"
