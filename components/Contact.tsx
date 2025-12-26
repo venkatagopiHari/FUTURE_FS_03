@@ -45,8 +45,9 @@ export default function Contact() {
             className="p-3 rounded bg-gray-900 border border-gray-700"
           />
 
-          {/* Extra fields for Formspree */}
-          <input type="hidden" name="_subject" value="New Nike Contact Message" />
+          {/* Formspree helpers */}
+          <input type="hidden" name="_subject" value="New Contact Message" />
+          <input type="hidden" name="_template" value="table" />
 
           <button
             type="submit"
